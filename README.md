@@ -23,10 +23,10 @@
 
 ```
 /project_root/
-|-- /src/
+|-- /ranx-classes        # Класс для создания и удаления инфоблоков
 |   |-- IblockCreator.php         # Класс для создания и удаления инфоблоков
 |   |-- NewsList.php              # Класс для получения новостей из инфоблоков
-|-- /bitrix/php_interface/init.php  # Подключение классов и логики в систему
+|-- init.php                      # Подключение классов и логики в систему
 |-- README.md                     # Документация проекта
 ```
 
@@ -34,19 +34,27 @@
 
 ### 1. Копирование файлов
 
-Скопируйте файлы проекта в директорию вашего проекта Bitrix. Обычно файлы классов размещаются в директории `/bitrix/php_interface/include/`.
+Скопируйте файлы проекта в директорию вашего проекта Bitrix. Обычно файлы классов размещаются в директории `/bitrix/php_interface/**class-directory**`.
 
 ### 2. Подключение классов в `init.php`
 
 Чтобы классы автоматически подключались в вашем проекте, необходимо подключить их в файле `/bitrix/php_interface/init.php`. Добавьте следующий код:
 
 ```php
-use Bitrix\Main\Loader;
+<?$directory = $_SERVER["DOCUMENT_ROOT"] . '/bitrix/php_interface/**class-directory**';
 
-Loader::includeModule('iblock');
+if (is_dir($directory)) {
+    $files = scandir($directory);
+    
+    foreach ($files as $file) {
+        $filePath = $directory . $file;
 
-require_once($_SERVER['DOCUMENT_ROOT'] . "/bitrix/php_interface/include/IblockCreator.php");
-require_once($_SERVER['DOCUMENT_ROOT'] . "/bitrix/php_interface/include/NewsList.php");
+        // Проверяем, что это файл и его расширение .php
+        if (is_file($filePath) && pathinfo($filePath, PATHINFO_EXTENSION) === 'php') {
+            require_once $filePath;
+        }
+    }
+}
 ```
 
 ### 3. Использование IblockCreator
@@ -55,13 +63,14 @@ require_once($_SERVER['DOCUMENT_ROOT'] . "/bitrix/php_interface/include/NewsList
 
 ```php
 $iblockCreator = new IblockCreator('content'); // Укажите тип инфоблока
-$iblockCreator->setIblockNames(12);            // Задайте количество инфоблоков
+$iblockCreator->setIblockNames(10);            // Задайте количество инфоблоков
 $iblockCreator->createIblocks();               // Создание инфоблоков
 ```
 
 Для удаления инфоблоков и сброса счётчиков ID:
 
 ```php
+$iblockCreator = new IblockCreator('content'); // Укажите тип инфоблока
 $iblockCreator->fullDeleteIblocks();
 ```
 
@@ -70,16 +79,29 @@ $iblockCreator->fullDeleteIblocks();
 Для получения списка новостей с кэшированием и пагинацией используйте следующий код:
 
 ```php
-$newsList = new NewsList(10, 1); // Лимит выборки - 10 новостей, страница - 1
-echo $newsList->toJson();        // Получение новостей в формате JSON
+$pageSize = $_GET['pageSize'] ?? 10;
+$page = $_GET['page'] ?? 1;
+$iblockId = $_GET['iblockId'] ?? 12;
+$year = $_GET['year'] ?? 2015;
+
+$newsList = new NewsList($pageSize, $page, $iblockId, $year);
+$newsList->toJson(true); //true используется для определения необходимости вывода вместо return в методе
+//$newsList->getNewsList(true) //Получение данных в классическом формате массива PHP
+```
+
+### 5. Использование очистки кеша NewsList
+
+```php
+// Пример очистки кэша:
+$newsList->clearCache();
 ```
 
 ## Деинсталляция
 
-1. Откройте файл `/bitrix/php_interface/init.php` и удалите строки, связанные с подключением классов `IblockCreator` и `NewsList`.
-2. Удалите файлы классов из директории `/bitrix/php_interface/include/`.
+1. Откройте файл `/bitrix/php_interface/init.php` и удалите строки, связанные с подключением классов.
+2. Удалите файлы классов из директории `/bitrix/php_interface/**class-directory**`.
 3. При необходимости, удалите инфоблоки через административную панель или используя метод `$iblockCreator->fullDeleteIblocks()`.
 
 ## Автор
 
-Разработано для использования с 1С-Битрикс. Автор: [Ваше Имя]
+Разработано для использования с 1С-Битрикс. Автор: Pavel Afanasev
