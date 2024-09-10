@@ -101,7 +101,7 @@ class NewsList
                 'name' => $fields['NAME'],
                 'sectionName' => $this->getSectionName($fields['IBLOCK_SECTION_ID']),
                 'date' => $this->formatDate($fields['DATE_ACTIVE_FROM']),
-                'author' => $this->getAuthorName($properties['PROPERTY_AUTHOR']['VALUE']),
+                'author' => $this->getAuthorName($properties['AUTHOR']['VALUE']),
                 'tags' => explode(',', $fields['TAGS']),
             ];
         }
@@ -128,9 +128,17 @@ class NewsList
         if (!$authorId) {
             return '';
         }
+        
+        if (!empty($authorId) && is_numeric($authorId)) {
+            $authorName = \CIBlockElement::GetById($authorId)->Fetch();
+            if (!$authorName) {
+                $authorName = '';
+            }
+        } else {
+            $authorName = '';
+        }
 
-        $author = \CIBlockElement::GetByID($authorId)->GetNext();
-        return $author ? $author['NAME'] : '';
+        return $authorName ? $authorName['NAME'] : '';
     }
 
     // Преобразование данных в формат JSON
