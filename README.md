@@ -34,14 +34,14 @@
 
 ### 1. Копирование файлов
 
-Скопируйте файлы проекта в директорию вашего проекта Bitrix. Обычно файлы классов размещаются в директории `/bitrix/php_interface/**class-directory**`.
+Скопируйте файлы проекта в директорию вашего проекта Bitrix. Обычно файлы классов размещаются в директории `/bitrix/php_interface/ranx-classes`.
 
 ### 2. Подключение классов в `init.php`
 
 Чтобы классы автоматически подключались в вашем проекте, необходимо подключить их в файле `/bitrix/php_interface/init.php`. Добавьте следующий код:
 
 ```php
-<?$directory = $_SERVER["DOCUMENT_ROOT"] . '/bitrix/php_interface/**class-directory**';
+<?$directory = $_SERVER["DOCUMENT_ROOT"] . '/bitrix/php_interface/ranx-classes';
 
 if (is_dir($directory)) {
     $files = scandir($directory);
@@ -99,7 +99,7 @@ $newsList->clearCache();
 ## Деинсталляция
 
 1. Откройте файл `/bitrix/php_interface/init.php` и удалите строки, связанные с подключением классов.
-2. Удалите файлы классов из директории `/bitrix/php_interface/**class-directory**`.
+2. Удалите файлы классов из директории `/bitrix/php_interface/ranx-classes`.
 3. При необходимости, удалите инфоблоки через административную панель или используя метод `$iblockCreator->fullDeleteIblocks()`.
 
 ## Автор
