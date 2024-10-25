@@ -1,6 +1,5 @@
 
 # Bitrix IBlock Manager and News List
-#### Тестовый проект - <a href="http://ranx.intrider-dev.ru/">ссылка</a> (доступы по запросу)
 
 ## Описание проекта
 
